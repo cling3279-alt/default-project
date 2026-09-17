@@ -1,9 +1,9 @@
 export const RARITIES = {
-  common: { key: 'common', name: '普通', multiplier: 1, color: '#a8b2c1', weight: 55, biteWindowMs: 2200, hookChance: 0.95, taps: 4, decay: 0.08, glow: false },
-  uncommon: { key: 'uncommon', name: '稀有', multiplier: 1.6, color: '#2ec4b6', weight: 26, biteWindowMs: 1900, hookChance: 0.88, taps: 6, decay: 0.1, glow: false },
-  rare: { key: 'rare', name: '珍貴', multiplier: 2.8, color: '#7b61ff', weight: 12, biteWindowMs: 1500, hookChance: 0.78, taps: 8, decay: 0.12, glow: false },
-  epic: { key: 'epic', name: '史詩', multiplier: 5, color: '#ff5d8f', weight: 5.5, biteWindowMs: 1200, hookChance: 0.65, taps: 10, decay: 0.15, glow: false },
-  legendary: { key: 'legendary', name: '傳說', multiplier: 10, color: '#ffb703', weight: 1.5, biteWindowMs: 950, hookChance: 0.5, taps: 12, decay: 0.18, glow: true },
+  common: { key: 'common', name: '普通', multiplier: 1, color: '#a8b2c1', weight: 55, biteWindowMs: 3200, hookChance: 0.95, taps: 4, decay: 0.08, glow: false },
+  uncommon: { key: 'uncommon', name: '稀有', multiplier: 1.6, color: '#2ec4b6', weight: 26, biteWindowMs: 2900, hookChance: 0.88, taps: 6, decay: 0.1, glow: false },
+  rare: { key: 'rare', name: '珍貴', multiplier: 2.8, color: '#7b61ff', weight: 12, biteWindowMs: 2500, hookChance: 0.78, taps: 8, decay: 0.12, glow: false },
+  epic: { key: 'epic', name: '史詩', multiplier: 5, color: '#ff5d8f', weight: 5.5, biteWindowMs: 2200, hookChance: 0.65, taps: 10, decay: 0.15, glow: false },
+  legendary: { key: 'legendary', name: '傳說', multiplier: 10, color: '#ffb703', weight: 1.5, biteWindowMs: 1900, hookChance: 0.5, taps: 12, decay: 0.18, glow: true },
 };
 
 export const FISH_SPECIES = [

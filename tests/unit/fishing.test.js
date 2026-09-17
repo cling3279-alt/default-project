@@ -169,6 +169,22 @@ describe('FishingGame cast flow', () => {
     expect(game.reel()).toBe(false);
   });
 
+  it('reels back to idle during biting and after escape', () => {
+    const game = new FishingGame({ random: seededRandom(11) });
+    game.cast(300, 400);
+    expect(stepUntilBiting(game)).toBe(true);
+    expect(game.state).toBe(STATE.BITING);
+    expect(game.reel()).toBe(true);
+    expect(game.state).toBe(STATE.IDLE);
+    expect(game.bobber.active).toBe(false);
+    game.cast(300, 400);
+    expect(stepUntilBiting(game)).toBe(true);
+    game.update(3);
+    expect(game.state).toBe(STATE.ESCAPED);
+    expect(game.reel()).toBe(true);
+    expect(game.state).toBe(STATE.IDLE);
+  });
+
   it('allows casting again after escape', () => {
     const game = new FishingGame({ random: seededRandom(10) });
     game.cast(300, 400);

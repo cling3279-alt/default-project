@@ -183,11 +183,18 @@ export class FishingGame {
   }
 
   reel() {
-    if (this.state !== STATE.CASTING && this.state !== STATE.WAITING) return false;
+    const inProgress =
+      this.state === STATE.CASTING || this.state === STATE.WAITING;
+    const missed =
+      this.state === STATE.BITING ||
+      this.state === STATE.MISSED ||
+      this.state === STATE.ESCAPED;
+    if (!inProgress && !missed) return false;
     this.state = STATE.IDLE;
     this.bobber.active = false;
     this.pendingCatch = null;
     this.t = 0;
+    this.reelMeter = 0;
     this.emit('statechange', this.state);
     this.emit('reel');
     return true;

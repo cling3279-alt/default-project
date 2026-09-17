@@ -69,14 +69,14 @@ loadGame();
 function hintText() {
   const hints = {
     [STATE.IDLE]: '點擊水面拋竿開始釣魚',
-    [STATE.CASTING]: '拋竿中…（點擊水面可收桿）',
-    [STATE.WAITING]: '靜靜等待魚兒上鉤…（等不及就點擊水面收桿）',
+    [STATE.CASTING]: '拋竿中…（點擊水面或按 R 可收桿）',
+    [STATE.WAITING]: '靜靜等待魚兒上鉤…（按 R 可收桿）',
     [STATE.BITING]: '咬餌了！快點擊收竿！',
     [STATE.MISSED]: '哎呀，拉得太快，魚兒跑了',
     [STATE.HOOKED]: game.pendingCatch
       ? `狂點左鍵 ${game.pendingCatch.rarity.taps} 下收線！`
       : '快！連續點擊收線！！',
-    [STATE.ESCAPED]: '魚兒逃跑了…點擊水面再釣一次',
+    [STATE.ESCAPED]: '魚兒逃跑了…點擊水面再釣，或按 R 收桿',
     [STATE.CAUGHT]: '釣到了！',
   };
   return hints[game.state];
@@ -222,6 +222,21 @@ window.addEventListener('keydown', (event) => {
     if (game.state === STATE.HOOKED) game.tap();
   }
   if (event.key === 'Enter' && game.state === STATE.ESCAPED) game.continue();
+  if (event.key === 'r' || event.key === 'R' || event.key === 'Escape') {
+    if (game.reel()) {
+      scene.spawnRipple(game.bobber.x, game.bobber.y, 12);
+      event.preventDefault();
+    }
+  }
+});
+
+canvas.addEventListener('contextmenu', (event) => {
+  event.preventDefault();
+  if (game.reel()) {
+    const rect = canvas.getBoundingClientRect();
+    scene.spawnRipple(game.bobber.x, game.bobber.y, 12);
+    void rect;
+  }
 });
 
 window.addEventListener('resize', () => scene.resize());
