@@ -120,11 +120,25 @@ describe('FishingGame cast flow', () => {
     guaranteedHook(game);
     expect(game.tryHook()).toBe(true);
     expect(game.state).toBe(STATE.HOOKED);
-    game.update(2);
+    expect(game.reelTap).toBeGreaterThan(0);
+    const taps = Math.ceil(1 / game.reelTap);
+    for (let i = 0; i < taps; i += 1) game.tap();
     expect(game.state).toBe(STATE.CAUGHT);
     expect(game.catchCount).toBe(1);
     expect(game.totalScore).toBeGreaterThan(0);
     expect(game.history.length).toBe(1);
+  });
+
+  it('fails reeling when not tapped (meter decays to escape)', () => {
+    const game = new FishingGame({ random: seededRandom(6) });
+    game.cast(300, 400);
+    expect(stepUntilBiting(game)).toBe(true);
+    guaranteedHook(game);
+    game.tryHook();
+    expect(game.state).toBe(STATE.HOOKED);
+    game.update(5);
+    expect(game.state).toBe(STATE.ESCAPED);
+    expect(game.escapes).toBe(1);
   });
 
   it('continue resets to idle after caught', () => {
@@ -133,7 +147,8 @@ describe('FishingGame cast flow', () => {
     expect(stepUntilBiting(game)).toBe(true);
     guaranteedHook(game);
     game.tryHook();
-    game.update(2);
+    const taps = Math.ceil(1 / game.reelTap);
+    for (let i = 0; i < taps; i += 1) game.tap();
     expect(game.state).toBe(STATE.CAUGHT);
     expect(game.continue()).toBe(true);
     expect(game.state).toBe(STATE.IDLE);
@@ -170,7 +185,8 @@ describe('FishingGame cast flow', () => {
     expect(stepUntilBiting(game)).toBe(true);
     guaranteedHook(game);
     game.tryHook();
-    game.update(2);
+    const taps = Math.ceil(1 / game.reelTap);
+    for (let i = 0; i < taps; i += 1) game.tap();
     expect(events).toContain('cast');
     expect(events).toContain('bite');
     expect(events).toContain('caught');

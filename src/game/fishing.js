@@ -25,6 +25,7 @@ export class FishingGame {
     this.lastResult = null;
     this.ambientFish = this.makeAmbientFish(ambientFishCount);
     this.t = 0;
+    this.reelMeter = 0;
     this._timers = {};
     this._events = [];
   }
@@ -94,8 +95,15 @@ export class FishingGame {
       this.escape();
     }
 
-    if (this.state === STATE.HOOKED && this.t >= this.reelDuration) {
-      this.resolveCatch();
+    if (this.state === STATE.HOOKED) {
+      this.reelMeter = this.reelMeter - this.reelDecay * dtSeconds;
+      if (this.reelMeter <= 0) {
+        this.reelMeter = 0;
+        this.escape();
+      } else if (this.reelMeter >= 1) {
+        this.reelMeter = 1;
+        this.resolveCatch();
+      }
     }
   }
 
@@ -129,12 +137,22 @@ export class FishingGame {
     if (this.random() < chance) {
       this.state = STATE.HOOKED;
       this.t = 0;
-      this.reelDuration = 1.1;
+      this.reelMeter = 0;
+      this.reelDecay = this.pendingCatch.rarity.decay;
+      this.reelTap = 1 / this.pendingCatch.rarity.taps;
       this.emit('statechange', this.state);
       return true;
     }
     this.escape();
     return false;
+  }
+
+  tap() {
+    if (this.state !== STATE.HOOKED) return false;
+    this.reelMeter = Math.min(1, this.reelMeter + this.reelTap);
+    if (this.reelMeter >= 1) this.resolveCatch();
+    this.emit('tick', this.reelMeter);
+    return true;
   }
 
   escape() {

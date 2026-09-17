@@ -107,6 +107,38 @@ body {
   animation: pulse 0.6s ease-in-out infinite alternate;
 }
 
+.reel-wrap {
+  position: fixed;
+  left: 50%;
+  bottom: 18%;
+  transform: translateX(-50%);
+  width: min(60%, 360px);
+  text-align: center;
+  z-index: 20;
+}
+
+.reel-track {
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  border-radius: 10px;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.reel-bar {
+  height: 100%;
+  width: 0%;
+  background: #ffd166;
+  transition: width 0.05s linear;
+}
+
+.reel-label {
+  margin-top: 6px;
+  color: #ffe8a3;
+  font-weight: 700;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+}
+
 @keyframes pulse {
   from {
     transform: translateX(-50%) scale(1);

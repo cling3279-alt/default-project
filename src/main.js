@@ -12,6 +12,8 @@ const els = {
   escapeCount: document.getElementById('escapeCount'),
   hint: document.getElementById('hint'),
   biteBanner: document.getElementById('biteBanner'),
+  reelWrap: document.getElementById('reelWrap'),
+  reelBar: document.getElementById('reelBar'),
   catchModal: document.getElementById('catchModal'),
   collectionModal: document.getElementById('collectionModal'),
   collectionList: document.getElementById('collectionList'),
@@ -70,7 +72,7 @@ function hintText() {
     [STATE.WAITING]: '靜靜等待魚兒上鉤…（等不及就點擊水面收桿）',
     [STATE.BITING]: '咬餌了！快點擊收竿！',
     [STATE.MISSED]: '哎呀，拉得太快，魚兒跑了',
-    [STATE.HOOKED]: '中鉤！收線中…',
+    [STATE.HOOKED]: '快！連續點擊收線！！',
     [STATE.ESCAPED]: '魚兒逃跑了…點擊水面再釣一次',
     [STATE.CAUGHT]: '釣到了！',
   };
@@ -83,6 +85,13 @@ function updateHud() {
   els.escapeCount.textContent = game.escapes;
   els.hint.textContent = hintText();
   els.biteBanner.classList.toggle('hidden', game.state !== STATE.BITING);
+  els.reelWrap.classList.toggle('hidden', game.state !== STATE.HOOKED);
+  if (game.state === STATE.HOOKED) {
+    els.reelBar.style.width = `${Math.round(game.reelMeter * 100)}%`;
+    els.reelBar.style.background = game.pendingCatch
+      ? RARITIES[game.pendingCatch.species.rarity].color
+      : '#ffd166';
+  }
 }
 
 function showCatchModal(result) {
@@ -188,6 +197,11 @@ canvas.addEventListener('click', (event) => {
       scene.spawnDroplets(game.bobber.x, game.bobber.y + 8, 14);
       scene.spawnRipple(game.bobber.x, game.bobber.y + 8, 8);
     }
+  } else if (game.state === STATE.HOOKED) {
+    if (game.tap()) {
+      scene.spawnDroplets(game.bobber.x, game.bobber.y + 8, 4);
+      scene.spawnRipple(game.bobber.x, game.bobber.y + 8, 5);
+    }
   } else if (game.state === STATE.CASTING || game.state === STATE.WAITING) {
     if (game.reel()) {
       scene.spawnRipple(game.bobber.x, game.bobber.y, 12);
@@ -200,6 +214,7 @@ window.addEventListener('keydown', (event) => {
   if (event.code === 'Space') {
     event.preventDefault();
     if (game.state === STATE.BITING) game.tryHook();
+    if (game.state === STATE.HOOKED) game.tap();
   }
   if (event.key === 'Enter' && game.state === STATE.ESCAPED) game.continue();
 });
