@@ -73,9 +73,7 @@ function hintText() {
     [STATE.WAITING]: '靜靜等待魚兒上鉤…（按 R 可收桿）',
     [STATE.BITING]: '咬餌了！快點擊收竿！',
     [STATE.MISSED]: '哎呀，拉得太快，魚兒跑了',
-    [STATE.HOOKED]: game.pendingCatch
-      ? `狂點左鍵 ${game.pendingCatch.rarity.taps} 下收線！`
-      : '快！連續點擊收線！！',
+    [STATE.HOOKED]: '中鉤！自動收線中…點擊加速！',
     [STATE.ESCAPED]: '魚兒逃跑了…點擊水面收桿',
     [STATE.CAUGHT]: '釣到了！',
   };
@@ -94,8 +92,7 @@ function updateHud() {
     els.reelBar.style.background = game.pendingCatch
       ? RARITIES[game.pendingCatch.species.rarity].color
       : '#ffd166';
-    const remaining = Math.max(0, Math.ceil((1 - game.reelMeter) / game.reelTap));
-    els.reelLabel.textContent = remaining > 0 ? `再按左鍵 ${remaining} 下！` : '收線成功！';
+    els.reelLabel.textContent = '收線中…點擊可加速！';
   }
 }
 

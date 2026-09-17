@@ -96,7 +96,7 @@ export class FishingGame {
     }
 
     if (this.state === STATE.HOOKED) {
-      this.reelMeter = this.reelMeter - this.reelDecay * dtSeconds;
+      this.reelMeter = this.reelMeter + this.reelAuto * dtSeconds - this.reelDecay * dtSeconds;
       if (this.reelMeter <= 0) {
         this.reelMeter = 0;
         this.escape();
@@ -138,6 +138,7 @@ export class FishingGame {
       this.state = STATE.HOOKED;
       this.t = 0;
       this.reelMeter = 0;
+      this.reelAuto = this.pendingCatch.rarity.auto;
       this.reelDecay = this.pendingCatch.rarity.decay;
       this.reelTap = 1 / this.pendingCatch.rarity.taps;
       this.emit('statechange', this.state);

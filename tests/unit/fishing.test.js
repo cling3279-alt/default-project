@@ -129,16 +129,16 @@ describe('FishingGame cast flow', () => {
     expect(game.history.length).toBe(1);
   });
 
-  it('fails reeling when not tapped (meter decays to escape)', () => {
+  it('auto-reels even without taps (slowest fish still catches)', () => {
     const game = new FishingGame({ random: seededRandom(6) });
     game.cast(300, 400);
     expect(stepUntilBiting(game)).toBe(true);
     guaranteedHook(game);
     game.tryHook();
     expect(game.state).toBe(STATE.HOOKED);
-    game.update(5);
-    expect(game.state).toBe(STATE.ESCAPED);
-    expect(game.escapes).toBe(1);
+    game.update(6);
+    expect(game.state).toBe(STATE.CAUGHT);
+    expect(game.catchCount).toBe(1);
   });
 
   it('continue resets to idle after caught', () => {
