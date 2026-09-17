@@ -1,102 +1,72 @@
-# <center>
+# 釣魚樂園 Fishing Paradise
 
-| Key     | Value     |
-| ------- | --------- |
-| Canvas  | `#1a1a2e` |
-| Primary | `#e94560` |
-| Accent  | `#0f3460` |
-| Text    | `#eaeaea` |
+> 一個在瀏覽器上玩的釣魚小遊戲：拋竿、等魚咬餌、敏捷收竿，收集不同大小與稀有度的魚。100% 前端（Vanilla JS + HTML5 Canvas），**永久免費部署於 GitHub Pages**。
 
-# <center>
+## 遊戲玩法
 
-# Default Project
+1. 點擊水面**拋竿**
+2. 觀察浮標旁的**魚影接近**，魚即將來咬餌
+3. 魚**咬餌**時浮標劇烈抖動、水面出現波紋與「！！」— 快點擊收竿！
+4. 中鉤後收線，釣起魚隻並結算
+5. 魚有 **大小、重量、稀有度、分數**：
+   - 稀有度：普通 → 稀有 → 珍貴 → 史詩 → 傳說（愈稀有，咬餌窗口愈短、愈難中鉤、分數倍率愈高）
+   - 大小與重量影響分數；傳說魚有金色光暈
+6. 每次釣獲都會存入 **圖鑑**（按稀有度排列），進度自動儲存於瀏覽器 (localStorage)
 
-> 一個使用 Vanilla JavaScript + HTML5 Canvas 打造的網頁小遊戲，以 Vite 為開發伺服器、Vitest 進行單元測試、ESLint + Prettier 統一程式碼風格，並以 Python 輔助測試與自動化腳本。
+## 立即遊玩
 
-## 功能特色
-
-- HTML5 Canvas 遊戲迴圈（`requestAnimationFrame` + 固定 FPS）
-- 模組化架構：`core` / `entities` / `systems`
-- 透過 Vite dev server 提供熱重載開發體驗
-- 單元測試（Vitest）與端對端測試測試框架
-- 支援多種環境設定（`.env`）
-- GitHub Actions CI 自動化測試
+- 本地開發：`npm run dev` → 開啟 http://localhost:5173
+- 線上版本：`https://cling3279-alt.github.io/default-project/`（GitHub Pages）
 
 ## 專案結構
 
 ```
-├── .github/workflows/   # CI/CD workflow
-├── config/              # 執行期設定
-├── docs/                # 文件
-├── public/              # 靜態資源（直接進到 build 根目錄）
-├── scripts/             # 開發/部署腳本
+├── .github/workflows/   # CI + GitHub Pages 部署
 ├── src/
-│   ├── assets/          # 圖片、音效、字型
 │   ├── game/
-│   │   ├── core/        # 遊戲迴圈、Input、Render
-│   │   ├── entities/    # 玩家、敵人、道具等
-│   │   └── systems/     # 碰撞、粒子、音效系統
-│   └── utils/           # 工具函式
-├── tests/
-│   ├── unit/            # 單元測試
-│   └── e2e/             # 端對端測試
+│   │   ├── fishData.js      # 魚種與稀有度資料（分數公式）
+│   │   ├── fishing.js       # 釣魚狀態機（拋竿/咬餌/收竿/結算）
+│   │   └── waterScene.js    # Canvas 水場景渲染
+│   ├── main.js              # 輸入、HUD、圖鑑 UI
+│   └── style.css
+├── tests/unit/fishing.test.js
 ├── index.html
-├── package.json
 └── vite.config.js
 ```
 
-## 安裝
-
-### 前置需求
-
-| 工具    | 最低版本 | 建議版本 |
-| ------- | -------- | -------- |
-| Node.js | 20       | 24       |
-| npm     | 10       | 11       |
-| Python  | 3.11     | 3.13     |
-| Git     | 2.40     | 2.55     |
-
-### 安裝相依套件
+## 開發指令
 
 ```bash
-npm install
+npm run dev          # 本地開發伺服器
+npm run test         # 單元測試（Vitest）
+npm run lint         # ESLint 檢查
+npm run format       # Prettier 格式化
+npm run build        # production build
+npm run preview      # 預覽 build 結果
 ```
 
-Python 測試/腳本相依：
+## 部署到 GitHub Pages（永久免費）
 
-```bash
-python -m venv .venv
-.venv\Scripts\activate      # Windows
-pip install -r requirements-dev.txt
-```
+每次 push 到 `main`，`.github/workflows/deploy.yml` 會自動：
+1. `npm ci && npm run build`
+2. 以 `VITE_BASE_URL=/default-project/` 組出正確路徑
+3. 透過 `actions/deploy-pages` 上傳到 GitHub Pages
 
-## 使用方式
-
-```bash
-npm run dev        # 啟動開發伺服器 (預設 http://localhost:5173)
-npm run test       # 執行單元測試
-npm run lint       # 程式碼檢查
-npm run build      # 建置 production
-npm run preview    # 預覽 production build
-```
+後續只要 `git push` 就會自動更新線上版本。
 
 ## 環境變數
 
-複製 `.env.example` 為 `.env` 並依需求修改。所有 `VITE_` 前綴的變數會注入前端程式碼（透過 `import.meta.env`）。
+複製 `.env.example` 為 `.env`：
 
-```bash
-cp .env.example .env
-```
+- `VITE_BASE_URL`：部署路徑（本地維持 `/`，Pages 用 `/default-project/`）
+- `VITE_PORT`：開發伺服器埠號
 
-## 測試
+## 技術棧
 
-- 單元測試（Vitest）：`npm run test`
-- 類型/風格檢查（ESLint）：`npm run lint`
-- 格式（Prettier）：`npm run format`
-
-## 部署
-
-GitHub Actions 會在每次 push 到 `main` 或開啟 PR 時自動執行 lint 與測試，流程定義於 `.github/workflows/ci.yml`。
+- Vite 6 + Vanilla JavaScript（模組化 ES Modules）
+- Vitest 5（單元測試）
+- ESLint + Prettier（程式碼品質）
+- GitHub Actions + GitHub Pages（CI + 免費託管）
 
 ## License
 

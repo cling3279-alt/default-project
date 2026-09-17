@@ -1,87 +1,244 @@
-import { GameLoop } from './game/core/loop.js';
-import { World } from './game/core/world.js';
-import { Player } from './game/entities/player.js';
-import { Collectible, Enemy } from './game/entities/index.js';
-import { applyCollisions } from './game/systems/collision.js';
-import { randomBetween } from './utils/math.js';
+import { FishingGame, STATE } from './game/fishing.js';
+import { FISH_SPECIES, RARITIES } from './game/fishData.js';
+import { WaterScene } from './game/waterScene.js';
 
 const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
+const game = new FishingGame();
+const scene = new WaterScene(canvas, game);
 
-const world = new World();
-const player = new Player(world.width / 2, world.height / 2);
-world.addEntity(player);
+const els = {
+  totalScore: document.getElementById('totalScore'),
+  catchCount: document.getElementById('catchCount'),
+  escapeCount: document.getElementById('escapeCount'),
+  hint: document.getElementById('hint'),
+  biteBanner: document.getElementById('biteBanner'),
+  catchModal: document.getElementById('catchModal'),
+  collectionModal: document.getElementById('collectionModal'),
+  collectionList: document.getElementById('collectionList'),
+  collectionEmpty: document.getElementById('collectionEmpty'),
+  catchRarityTag: document.getElementById('catchRarityTag'),
+  catchName: document.getElementById('catchName'),
+  catchIcon: document.getElementById('catchIcon'),
+  catchSize: document.getElementById('catchSize'),
+  catchWeight: document.getElementById('catchWeight'),
+  catchScore: document.getElementById('catchScore'),
+  catchContinue: document.getElementById('catchContinue'),
+  collectionBtn: document.getElementById('collectionBtn'),
+  collectionClose: document.getElementById('collectionClose'),
+};
 
-function spawnCollectible() {
-  world.addEntity(
-    new Collectible(randomBetween(30, world.width - 30), randomBetween(30, world.height - 30))
-  );
-}
+const SAVE_KEY = 'fishing-paradise-save-v1';
 
-function spawnEnemy() {
-  world.addEntity(
-    new Enemy(randomBetween(30, world.width - 30), randomBetween(30, world.height - 30))
-  );
-}
-
-for (let i = 0; i < 5; i += 1) spawnCollectible();
-spawnEnemy();
-
-window.addEventListener('keydown', (event) => {
-  if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(event.key)) {
-    event.preventDefault();
-  }
-  player.press(event.key);
-});
-
-window.addEventListener('keyup', (event) => {
-  player.release(event.key);
-});
-
-function update(deltaSeconds) {
-  world.update(deltaSeconds);
-
-  const report = applyCollisions(world, player);
-  if (report.collected > 0) spawnCollectible();
-  if (report.hit) {
-    loop.stop();
-    ctx.fillStyle = '#e94560';
-    ctx.font = '48px Segoe UI';
-    ctx.textAlign = 'center';
-    ctx.fillText('Game Over', canvas.width / 2, canvas.height / 2);
+function saveGame() {
+  try {
+    localStorage.setItem(
+      SAVE_KEY,
+      JSON.stringify({
+        totalScore: game.totalScore,
+        catchCount: game.catchCount,
+        escapes: game.escapes,
+        history: game.history.slice(0, 50),
+        discovered: Array.from(game.discovered.entries()),
+      })
+    );
+  } catch {
+    /* storage unavailable */
   }
 }
 
-function render() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+function loadGame() {
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    game.totalScore = data.totalScore || 0;
+    game.catchCount = data.catchCount || 0;
+    game.escapes = data.escapes || 0;
+    game.history = data.history || [];
+    game.discovered = new Map(data.discovered || []);
+  } catch {
+    /* corrupted save ignored */
+  }
+}
 
-  for (const entity of world.entities) {
-    if (entity === player) {
-      ctx.fillStyle = '#4cc9f0';
-      ctx.fillRect(
-        player.x - player.size / 2,
-        player.y - player.size / 2,
-        player.size,
-        player.size
-      );
-    } else if (entity instanceof Collectible) {
-      ctx.fillStyle = '#e94560';
-      ctx.beginPath();
-      ctx.arc(entity.x, entity.y, entity.radius, 0, Math.PI * 2);
-      ctx.fill();
-    } else if (entity instanceof Enemy) {
-      ctx.fillStyle = '#9b2226';
-      ctx.beginPath();
-      ctx.arc(entity.x, entity.y, entity.radius, 0, Math.PI * 2);
-      ctx.fill();
+loadGame();
+
+function hintText() {
+  const hints = {
+    [STATE.IDLE]: '點擊水面拋竿開始釣魚',
+    [STATE.CASTING]: '拋竿中…',
+    [STATE.WAITING]: '靜靜等待魚兒上鉤…',
+    [STATE.BITING]: '咬餌了！快點擊收竿！',
+    [STATE.MISSED]: '哎呀，拉得太快，魚兒跑了',
+    [STATE.HOOKED]: '中鉤！收線中…',
+    [STATE.ESCAPED]: '魚兒逃跑了…點擊水面再釣一次',
+    [STATE.CAUGHT]: '釣到了！',
+  };
+  return hints[game.state];
+}
+
+function updateHud() {
+  els.totalScore.textContent = game.totalScore;
+  els.catchCount.textContent = game.catchCount;
+  els.escapeCount.textContent = game.escapes;
+  els.hint.textContent = hintText();
+  els.biteBanner.classList.toggle('hidden', game.state !== STATE.BITING);
+}
+
+function showCatchModal(result) {
+  const rarity = RARITIES[result.species.rarity];
+  els.catchRarityTag.textContent = rarity.name;
+  els.catchRarityTag.style.background = rarity.color;
+  els.catchName.textContent = result.species.name;
+  els.catchName.style.color = rarity.color;
+  els.catchSize.textContent = `${result.sizeCm} cm`;
+  els.catchWeight.textContent = `${result.weightKg} kg`;
+  els.catchScore.textContent = result.score;
+  drawCatchIcon(result.species, rarity);
+  els.catchModal.classList.remove('hidden');
+}
+
+function drawCatchIcon(species, rarity) {
+  const icon = els.catchIcon;
+  icon.innerHTML = '';
+  const size = 120;
+  const svgNS = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(svgNS, 'svg');
+  svg.setAttribute('viewBox', '0 0 200 100');
+  svg.setAttribute('width', `${size}`);
+  svg.setAttribute('height', '60');
+  const w = 170;
+  const h = 46;
+  const body = document.createElementNS(svgNS, 'ellipse');
+  body.setAttribute('cx', '100');
+  body.setAttribute('cy', '50');
+  body.setAttribute('rx', String(w / 2));
+  body.setAttribute('ry', String(h / 2));
+  body.setAttribute('fill', species.color);
+  svg.appendChild(body);
+  if (rarity.glow) {
+    const glow = document.createElementNS(svgNS, 'ellipse');
+    glow.setAttribute('cx', '100');
+    glow.setAttribute('cy', '50');
+    glow.setAttribute('rx', String(w / 2 + 8));
+    glow.setAttribute('ry', String(h / 2 + 8));
+    glow.setAttribute('fill', 'none');
+    glow.setAttribute('stroke', rarity.color);
+    glow.setAttribute('stroke-width', '4');
+    svg.appendChild(glow);
+  }
+  const tail = document.createElementNS(svgNS, 'path');
+  tail.setAttribute('d', 'M 20 50 L -2 26 L 4 50 L -2 74 Z');
+  tail.setAttribute('fill', species.color);
+  svg.appendChild(tail);
+  const eye = document.createElementNS(svgNS, 'circle');
+  eye.setAttribute('cx', '135');
+  eye.setAttribute('cy', '38');
+  eye.setAttribute('r', '5');
+  eye.setAttribute('fill', '#111');
+  svg.appendChild(eye);
+  icon.appendChild(svg);
+}
+
+function renderCollection() {
+  const species = [...FISH_SPECIES].sort((a, b) => {
+    const ra = RARITIES[a.rarity].weight;
+    const rb = RARITIES[b.rarity].weight;
+    return ra - rb;
+  });
+  els.collectionList.innerHTML = '';
+  const hasAny = Array.from(game.discovered.values()).some((d) => d.count > 0);
+  els.collectionEmpty.classList.toggle('hidden', Boolean(hasAny));
+  for (const s of species) {
+    const entry = game.discovered.get(s.id);
+    const rarity = RARITIES[s.rarity];
+    const row = document.createElement('div');
+    row.className = 'collection-row';
+    const tag = document.createElement('span');
+    tag.className = 'collection-rarity';
+    tag.style.background = rarity.color;
+    tag.textContent = rarity.name;
+    const name = document.createElement('span');
+    name.className = 'collection-name';
+    name.textContent = s.name;
+    const info = document.createElement('span');
+    info.className = 'collection-info';
+    info.textContent = entry
+      ? `釣獲 ${entry.count} 次 · 最佳 ${entry.bestScore} 分`
+      : '尚未釣到';
+    row.appendChild(tag);
+    row.appendChild(name);
+    row.appendChild(info);
+    els.collectionList.appendChild(row);
+  }
+}
+
+canvas.addEventListener('click', (event) => {
+  const rect = canvas.getBoundingClientRect();
+  const x = event.clientX - rect.left;
+  const y = event.clientY - rect.top;
+  if (game.state === STATE.IDLE || game.state === STATE.ESCAPED) {
+    if (y >= scene.waterTop) {
+      game.cast(x, y);
+      scene.spawnDroplets(x, y, 10);
+    }
+  } else if (game.state === STATE.BITING) {
+    scene.spawnDroplets(x, y, 2);
+    if (game.tryHook()) {
+      scene.spawnDroplets(game.bobber.x, game.bobber.y + 8, 14);
+      scene.spawnRipple(game.bobber.x, game.bobber.y + 8, 8);
     }
   }
+});
 
-  ctx.fillStyle = '#eaeaea';
-  ctx.font = '20px Segoe UI';
-  ctx.textAlign = 'left';
-  ctx.fillText(`Score: ${player.score}`, 16, 32);
+window.addEventListener('keydown', (event) => {
+  if (event.code === 'Space') {
+    event.preventDefault();
+    if (game.state === STATE.BITING) game.tryHook();
+  }
+  if (event.key === 'Enter' && game.state === STATE.ESCAPED) game.continue();
+});
+
+window.addEventListener('resize', () => scene.resize());
+
+els.catchContinue.addEventListener('click', () => {
+  els.catchModal.classList.add('hidden');
+  game.continue();
+});
+
+els.collectionBtn.addEventListener('click', () => {
+  renderCollection();
+  els.collectionModal.classList.remove('hidden');
+});
+
+els.collectionClose.addEventListener('click', () => {
+  els.collectionModal.classList.add('hidden');
+});
+
+game.on('caught', (result) => {
+  saveGame();
+  updateHud();
+  showCatchModal(result);
+});
+
+game.on('escape', () => {
+  saveGame();
+  updateHud();
+});
+
+game.on('statechange', updateHud);
+
+let last = performance.now();
+
+function frame(now) {
+  const dt = Math.min(0.05, (now - last) / 1000);
+  last = now;
+  game.update(dt);
+  scene.update(dt, now / 1000);
+  scene.render();
+  updateHud();
+  requestAnimationFrame(frame);
 }
 
-const loop = new GameLoop({ update, render });
-loop.start();
+scene.resize();
+requestAnimationFrame(frame);

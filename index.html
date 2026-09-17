@@ -1,15 +1,58 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="zh-Hant">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Default Project – Web Game</title>
+    <meta name="theme-color" content="#0f3d5c" />
+    <title>釣魚樂園 Fishing Paradise</title>
     <link rel="stylesheet" href="./src/style.css" />
   </head>
   <body>
-    <div id="app">
-      <canvas id="gameCanvas" width="1280" height="720"></canvas>
+    <canvas id="gameCanvas"></canvas>
+
+    <div id="hud">
+      <div class="hud-stat">
+        <span class="hud-label">總分</span>
+        <span id="totalScore" class="hud-value">0</span>
+      </div>
+      <div class="hud-stat">
+        <span class="hud-label">釣獲</span>
+        <span id="catchCount" class="hud-value">0</span>
+      </div>
+      <div class="hud-stat">
+        <span class="hud-label">逃脫</span>
+        <span id="escapeCount" class="hud-value">0</span>
+      </div>
+      <button id="collectionBtn" class="hud-btn" type="button">圖鑑</button>
     </div>
-    <script type="module" src="/src/main.js"></script>
+
+    <div id="hint" class="hint">點擊水面拋竿開始釣魚</div>
+
+    <div id="biteBanner" class="bite-banner hidden">咬餌了！快點擊收竿！</div>
+
+    <div id="catchModal" class="modal hidden">
+      <div class="modal-card">
+        <div id="catchRarityTag" class="rarity-tag">普通</div>
+        <h2 id="catchName">魚</h2>
+        <div class="catch-fish-icon" id="catchIcon"></div>
+        <div class="catch-stats">
+          <div><span>大小</span><strong id="catchSize">--</strong></div>
+          <div><span>重量</span><strong id="catchWeight">--</strong></div>
+          <div><span>分數</span><strong id="catchScore">--</strong></div>
+        </div>
+        <button id="catchContinue" class="primary-btn" type="button">繼續釣魚</button>
+      </div>
+    </div>
+
+    <div id="collectionModal" class="modal hidden">
+      <div class="modal-card collection-card">
+        <h2>魚獲圖鑑</h2>
+        <div id="collectionList" class="collection-list"></div>
+        <div class="collection-empty" id="collectionEmpty">還沒有釣到任何魚</div>
+        <button id="collectionClose" class="primary-btn" type="button">關閉</button>
+      </div>
+    </div>
+
+    <script type="module" src="./src/main.js"></script>
   </body>
 </html>
