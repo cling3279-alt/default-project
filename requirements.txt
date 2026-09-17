@@ -1,0 +1,3 @@
+# Runtime Python dependencies for automation/tooling scripts (empty by default)
+# Add runtime dependencies here, e.g.:
+# requests>=2.31

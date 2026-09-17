@@ -1,0 +1,38 @@
+:root {
+  --canvas-bg: #1a1a2e;
+  --primary: #e94560;
+  --accent: #0f3460;
+  --text: #eaeaea;
+}
+
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--canvas-bg);
+  color: var(--text);
+  font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+#app {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+#gameCanvas {
+  border: 2px solid var(--accent);
+  background: var(--canvas-bg);
+  display: block;
+}

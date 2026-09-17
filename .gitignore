@@ -1,0 +1,48 @@
+# ---- Node.js / npm ----
+node_modules/
+dist/
+coverage/
+*.log
+.npm/
+.cache/
+
+# ---- Python ----
+__pycache__/
+*.pyc
+.venv/
+venv/
+.python-version
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.tox/
+.poetry/
+*.egg-info/
+build/
+.pysqlite_history
+
+# ---- Environment & secrets ----
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# ---- Editors / IDE ----
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# ---- Test artifacts ----
+e2e/screenshots/
+playwright-report/
+test-results/
+
+# ---- OS ----
+.DS_Store
+Thumbs.db
