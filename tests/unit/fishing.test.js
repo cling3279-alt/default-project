@@ -179,7 +179,7 @@ describe('FishingGame cast flow', () => {
     expect(game.bobber.active).toBe(false);
     game.cast(300, 400);
     expect(stepUntilBiting(game)).toBe(true);
-    game.update(3);
+    game.update(4);
     expect(game.state).toBe(STATE.ESCAPED);
     expect(game.reel()).toBe(true);
     expect(game.state).toBe(STATE.IDLE);

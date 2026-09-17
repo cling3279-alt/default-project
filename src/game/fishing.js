@@ -132,7 +132,7 @@ export class FishingGame {
 
   tryHook() {
     if (this.state !== STATE.BITING || !this.pendingCatch) return false;
-    const freshness = 0.55 + 0.45 * this.remainingBiteRatio();
+    const freshness = 0.85 + 0.15 * this.remainingBiteRatio();
     const chance = this.pendingCatch.rarity.hookChance * freshness;
     if (this.random() < chance) {
       this.state = STATE.HOOKED;

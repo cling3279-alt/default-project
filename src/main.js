@@ -76,7 +76,7 @@ function hintText() {
     [STATE.HOOKED]: game.pendingCatch
       ? `狂點左鍵 ${game.pendingCatch.rarity.taps} 下收線！`
       : '快！連續點擊收線！！',
-    [STATE.ESCAPED]: '魚兒逃跑了…點擊水面再釣，或按 R 收桿',
+    [STATE.ESCAPED]: '魚兒逃跑了…點擊水面收桿',
     [STATE.CAUGHT]: '釣到了！',
   };
   return hints[game.state];
@@ -191,10 +191,15 @@ canvas.addEventListener('click', (event) => {
   const rect = canvas.getBoundingClientRect();
   const x = event.clientX - rect.left;
   const y = event.clientY - rect.top;
-  if (game.state === STATE.IDLE || game.state === STATE.ESCAPED) {
+  if (game.state === STATE.IDLE) {
     if (y >= scene.waterTop) {
       game.cast(x, y);
       scene.spawnDroplets(x, y, 10);
+    }
+  } else if (game.state === STATE.ESCAPED || game.state === STATE.MISSED) {
+    if (game.reel()) {
+      scene.spawnRipple(game.bobber.x, game.bobber.y, 14);
+      scene.spawnDroplets(game.bobber.x, game.bobber.y, 8);
     }
   } else if (game.state === STATE.BITING) {
     scene.spawnDroplets(x, y, 2);
