@@ -140,6 +140,20 @@ describe('FishingGame cast flow', () => {
     expect(game.bobber.active).toBe(false);
   });
 
+  it('reels back to idle while casting or waiting', () => {
+    const game = new FishingGame({ random: seededRandom(9) });
+    game.cast(300, 400);
+    expect(game.reel()).toBe(true);
+    expect(game.state).toBe(STATE.IDLE);
+    expect(game.bobber.active).toBe(false);
+    game.cast(300, 400);
+    game.update(0.9);
+    expect(game.state).toBe(STATE.WAITING);
+    expect(game.reel()).toBe(true);
+    expect(game.state).toBe(STATE.IDLE);
+    expect(game.reel()).toBe(false);
+  });
+
   it('continue does nothing in the middle of fishing', () => {
     const game = new FishingGame({ random: seededRandom(6) });
     game.cast(300, 400);

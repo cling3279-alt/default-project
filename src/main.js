@@ -66,8 +66,8 @@ loadGame();
 function hintText() {
   const hints = {
     [STATE.IDLE]: '點擊水面拋竿開始釣魚',
-    [STATE.CASTING]: '拋竿中…',
-    [STATE.WAITING]: '靜靜等待魚兒上鉤…',
+    [STATE.CASTING]: '拋竿中…（點擊水面可收桿）',
+    [STATE.WAITING]: '靜靜等待魚兒上鉤…（等不及就點擊水面收桿）',
     [STATE.BITING]: '咬餌了！快點擊收竿！',
     [STATE.MISSED]: '哎呀，拉得太快，魚兒跑了',
     [STATE.HOOKED]: '中鉤！收線中…',
@@ -187,6 +187,11 @@ canvas.addEventListener('click', (event) => {
     if (game.tryHook()) {
       scene.spawnDroplets(game.bobber.x, game.bobber.y + 8, 14);
       scene.spawnRipple(game.bobber.x, game.bobber.y + 8, 8);
+    }
+  } else if (game.state === STATE.CASTING || game.state === STATE.WAITING) {
+    if (game.reel()) {
+      scene.spawnRipple(game.bobber.x, game.bobber.y, 12);
+      scene.spawnDroplets(game.bobber.x, game.bobber.y, 8);
     }
   }
 });

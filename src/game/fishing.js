@@ -164,6 +164,17 @@ export class FishingGame {
     this.emit('caught', result);
   }
 
+  reel() {
+    if (this.state !== STATE.CASTING && this.state !== STATE.WAITING) return false;
+    this.state = STATE.IDLE;
+    this.bobber.active = false;
+    this.pendingCatch = null;
+    this.t = 0;
+    this.emit('statechange', this.state);
+    this.emit('reel');
+    return true;
+  }
+
   continue() {
     if (this.state === STATE.ESCAPED || this.state === STATE.CAUGHT) {
       this.state = STATE.IDLE;
