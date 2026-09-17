@@ -169,6 +169,16 @@ describe('FishingGame cast flow', () => {
     expect(game.reel()).toBe(false);
   });
 
+  it('allows casting again after escape', () => {
+    const game = new FishingGame({ random: seededRandom(10) });
+    game.cast(300, 400);
+    expect(stepUntilBiting(game)).toBe(true);
+    game.update(5);
+    expect(game.state).toBe(STATE.ESCAPED);
+    expect(game.cast(100, 200)).toBe(true);
+    expect(game.state).toBe(STATE.CASTING);
+  });
+
   it('continue does nothing in the middle of fishing', () => {
     const game = new FishingGame({ random: seededRandom(6) });
     game.cast(300, 400);

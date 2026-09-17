@@ -59,7 +59,7 @@ export class FishingGame {
   }
 
   cast(x, y) {
-    if (this.state !== STATE.IDLE) return false;
+    if (this.state !== STATE.IDLE && this.state !== STATE.ESCAPED) return false;
     this.state = STATE.CASTING;
     this.bobber = { x, y, active: true };
     this.pendingCatch = null;
