@@ -71,9 +71,9 @@ function hintText() {
     [STATE.IDLE]: '點擊水面拋竿開始釣魚',
     [STATE.CASTING]: '拋竿中…（點擊水面或按 R 可收桿）',
     [STATE.WAITING]: '靜靜等待魚兒上鉤…（按 R 可收桿）',
-    [STATE.BITING]: '咬餌了！快按左鍵收竿！',
+    [STATE.BITING]: '咬餌了！快按滑鼠左鍵收竿！',
     [STATE.MISSED]: '哎呀，拉得太快，魚兒跑了',
-    [STATE.HOOKED]: '中鉤！自動收線中…連點左鍵加速！',
+    [STATE.HOOKED]: '中鉤！自動收線中…連點滑鼠左鍵加速！',
     [STATE.ESCAPED]: '魚兒逃跑了…點擊水面收桿',
     [STATE.CAUGHT]: '釣到了！',
   };
@@ -92,7 +92,7 @@ function updateHud() {
     els.reelBar.style.background = game.pendingCatch
       ? RARITIES[game.pendingCatch.species.rarity].color
       : '#ffd166';
-    els.reelLabel.textContent = '連點左鍵加速收線！';
+    els.reelLabel.textContent = '連點滑鼠左鍵加速收線！';
   }
 }
 
